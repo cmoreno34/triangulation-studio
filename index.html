@@ -1,0 +1,587 @@
+<!doctype html><html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Triangulation studio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,900&family=Archivo:wght@400;500;600;700&display=swap">
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<style>
+:root{
+  --ground:#f4f2ea;--panel:#fbfaf5;--ink:#17251d;--soft:#4a5a50;--leaf:#2f6b4f;--leaf-ink:#21503b;
+  --clay:#bd5f3f;--line:#ddd8c9;--sage:#e7ece3;--chip:#eef1e8;--shadow:0 1px 2px rgba(23,37,29,.06),0 8px 24px rgba(23,37,29,.06);
+  --c1:#3b6fb5;--c2:#2f8f8f;--c3:#c9702f;--c4:#7a6bd0;
+  --pos:#2f6b4f;--part:#8fb89f;--nil:#d9d5c8;--neg:#bd5f3f;--warnbg:#f7e6dc;}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --ground:#111713;--panel:#18211b;--ink:#eef1ea;--soft:#a7b7ac;--leaf:#6bbd93;--leaf-ink:#8fd3ac;
+  --clay:#e08a68;--line:#2a352d;--sage:#1e2922;--chip:#212c25;--shadow:0 1px 2px rgba(0,0,0,.3),0 10px 28px rgba(0,0,0,.35);
+  --c1:#6ea8e6;--c2:#63c6c6;--c3:#e0a44f;--c4:#b0a6d6;
+  --pos:#4f9e78;--part:#355e48;--nil:#2c372f;--neg:#c86f50;--warnbg:#3a2a22;}}
+:root[data-theme="dark"]{
+  --ground:#111713;--panel:#18211b;--ink:#eef1ea;--soft:#a7b7ac;--leaf:#6bbd93;--leaf-ink:#8fd3ac;
+  --clay:#e08a68;--line:#2a352d;--sage:#1e2922;--chip:#212c25;--shadow:0 1px 2px rgba(0,0,0,.3),0 10px 28px rgba(0,0,0,.35);
+  --c1:#6ea8e6;--c2:#63c6c6;--c3:#e0a44f;--c4:#b0a6d6;
+  --pos:#4f9e78;--part:#355e48;--nil:#2c372f;--neg:#c86f50;--warnbg:#3a2a22;}
+*{box-sizing:border-box}
+body{margin:0;background:var(--ground);color:var(--ink);font-family:Archivo,system-ui,sans-serif;line-height:1.55;padding-inline:clamp(16px,4vw,40px)}
+.wrap{max-width:820px;margin:0 auto}
+header{padding-block:30px 14px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap}
+.brandline{font:600 12px/1 Archivo;letter-spacing:.14em;text-transform:uppercase;color:var(--leaf);margin:0 0 8px}
+h1{font-family:Fraunces,Georgia,serif;font-weight:900;font-size:clamp(26px,5vw,36px);line-height:1.04;margin:0}
+.themebtn{background:var(--panel);border:1px solid var(--line);color:var(--soft);border-radius:999px;padding:6px 13px;font:500 13px Archivo;cursor:pointer}
+.sub{font-size:14px;color:var(--soft);margin:16px 0 4px}
+.case{background:var(--sage);border:1px solid var(--line);border-radius:14px;padding:15px 18px;margin:14px 0 6px;font-size:14.5px}
+.case b{font-weight:700}.case .q{color:var(--clay);font-weight:700}
+.case details{margin-top:8px}.case summary{cursor:pointer;font:600 12.5px Archivo;color:var(--leaf-ink)}
+.who{display:flex;gap:12px;flex-wrap:wrap;margin:16px 0 4px}
+.who label{display:flex;flex-direction:column;gap:4px;font:700 10.5px Archivo;letter-spacing:.1em;text-transform:uppercase;color:var(--soft)}
+.who input{border:1px solid var(--line);border-radius:8px;padding:9px 11px;font:400 14px Archivo;background:var(--panel);color:var(--ink);min-width:200px}
+.step{background:var(--panel);border:1px solid var(--line);border-left:5px solid var(--c,var(--leaf));border-radius:12px;padding:16px 18px;margin:15px 0;box-shadow:var(--shadow)}
+.step h2{font-family:Fraunces,serif;font-weight:900;font-size:19px;margin:0 0 3px;display:flex;align-items:center;gap:10px}
+.step h2 .n{background:var(--c,var(--leaf));color:#fff;width:28px;height:28px;border-radius:8px;display:inline-flex;align-items:center;justify-content:center;font-size:16px;flex:none}
+.step .lead{color:var(--soft);font-size:13px;margin:0 0 12px}
+label.fl{display:block;font:700 11px Archivo;letter-spacing:.06em;text-transform:uppercase;margin:6px 0 6px}
+input.txt,textarea,select{width:100%;border:1px solid var(--line);border-radius:10px;background:var(--ground);color:var(--ink);padding:11px 13px;font:400 14px/1.5 Archivo;resize:none}
+textarea{overflow:hidden;min-height:60px}
+textarea.capped{overflow:auto;resize:vertical}
+input.txt:focus,textarea:focus,select:focus{outline:none;border-color:var(--c,var(--leaf))}
+.row{display:flex;gap:9px;flex-wrap:wrap;align-items:center;margin:6px 0}
+.how{background:var(--sage);border:1px solid var(--line);border-radius:12px;padding:12px 15px;margin:4px 0 12px;font-size:13px}
+.how ol,.how ul{margin:6px 0 0;padding-left:20px}.how li{margin:4px 0}.how b{color:var(--leaf-ink)}
+.src{border:1px solid var(--line);border-left:4px solid var(--sc);border-radius:11px;background:var(--ground);padding:11px 13px;margin:10px 0}
+.src .sh{display:flex;justify-content:space-between;align-items:baseline;gap:8px;flex-wrap:wrap;margin-bottom:6px}
+.src .sh b{font:700 13.5px Archivo;color:var(--sc)}
+.src .sh a{font:600 12px Archivo;color:var(--soft)}
+.src .tag{font:600 11px Archivo;color:var(--soft)}
+.src input.txt{padding:8px 11px;font-size:13.5px;margin-bottom:6px;background:var(--panel)}
+.src textarea{background:var(--panel)}
+.chip2{display:flex;align-items:center;gap:10px;justify-content:space-between;border:1px solid var(--line);background:var(--sage);border-radius:10px;padding:11px 14px;font:600 13.5px Archivo;cursor:pointer;margin:2px 0}
+.chip2 b{color:var(--leaf-ink)}.chip2 .edit{font:600 12px Archivo;color:var(--soft);white-space:nowrap}.chip2:hover{border-color:var(--leaf)}
+.copybtn{border:1px solid var(--line);background:var(--panel);color:var(--ink);border-radius:8px;padding:8px 13px;font:600 12.5px Archivo;cursor:pointer;margin-bottom:10px}
+.copybtn:hover{border-color:var(--leaf)}
+pre.prompt{background:#14211b;color:#e8efe6;border-radius:10px;padding:14px;margin:0 0 10px;font:400 12px/1.6 ui-monospace,monospace;white-space:pre-wrap;max-height:340px;overflow:auto}
+.tools2{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0}
+.t2{display:flex;flex-direction:column;gap:1px;background:var(--ground);border:1px solid var(--line);border-radius:9px;padding:8px 12px;text-decoration:none;color:var(--ink);font:700 13px Archivo}
+.t2 span{font:500 10.5px Archivo;color:var(--soft)}.t2.main{background:var(--c,var(--leaf));color:#fff;border-color:transparent}.t2.main span{color:rgba(255,255,255,.82)}
+/* bias checklist + weights */
+.biases{display:grid;gap:6px;margin:4px 0 10px}
+.biases label{display:flex;gap:9px;align-items:flex-start;font-size:13.5px;cursor:pointer;background:var(--ground);border:1px solid var(--line);border-radius:9px;padding:8px 11px}
+.biases input{margin-top:4px;accent-color:var(--c3)}
+.biases b{font-weight:700}
+.weights{display:grid;grid-template-columns:auto 1fr 46px;gap:8px 12px;align-items:center;margin:8px 0 4px;font-size:13.5px}
+.weights input[type=range]{width:100%;accent-color:var(--leaf)}
+.weights .wv{font:700 14px Archivo;text-align:right;font-variant-numeric:tabular-nums}
+.sw{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:6px;vertical-align:baseline}
+/* the grid */
+.grid{margin:6px 0}
+.gr{display:grid;grid-template-columns:minmax(0,1fr) repeat(3,40px) 26px;gap:6px;align-items:center;padding:5px 0;border-bottom:1px solid var(--line)}
+.gr.head{font:700 10.5px Archivo;letter-spacing:.08em;text-transform:uppercase;color:var(--soft);border-bottom:2px solid var(--line)}
+.gr.head span{text-align:center}.gr.head span:first-child{text-align:left}
+.gr .tn{display:flex;flex-direction:column;gap:3px;min-width:0}
+.gr .tn input{border:1px solid transparent;background:transparent;color:var(--ink);font:600 14px Archivo;padding:4px 6px;border-radius:7px;width:100%}
+.gr .tn input:hover,.gr .tn input:focus{border-color:var(--line);background:var(--ground);outline:none}
+.cell{height:32px;border-radius:8px;border:1px solid var(--line);font:700 15px Archivo;cursor:pointer;background:var(--nil);color:var(--soft)}
+.cell[data-v="+"]{background:var(--pos);color:#fff;border-color:transparent}
+.cell[data-v="~"]{background:var(--part);color:var(--ink);border-color:transparent}
+.cell[data-v="x"]{background:var(--neg);color:#fff;border-color:transparent}
+.cell.off{opacity:.35}
+.gr .del{background:none;border:0;color:var(--soft);cursor:pointer;font-size:14px}
+.badge{display:inline-block;font:700 10.5px Archivo;letter-spacing:.04em;border-radius:999px;padding:2px 8px;margin-left:6px;white-space:nowrap}
+.b-conv{background:var(--pos);color:#fff}.b-prim{background:var(--c1);color:#fff}.b-net{background:var(--c3);color:#fff}.b-cont{background:var(--neg);color:#fff}.b-thin{background:var(--nil);color:var(--soft)}
+.legend{font-size:12px;color:var(--soft);margin:6px 0}
+.legend .cell{display:inline-flex;align-items:center;justify-content:center;width:26px;height:22px;font-size:12px;margin:0 4px 0 10px;cursor:default;vertical-align:middle}
+/* verdict + findings */
+.verdict{border-radius:12px;padding:14px 16px;margin:12px 0;border:1px solid var(--line);background:var(--sage)}
+.verdict.sep{background:var(--warnbg);border-color:var(--neg)}
+.verdict h3{font-family:Fraunces,serif;font-weight:900;font-size:17px;margin:0 0 4px}
+.verdict .meter{height:10px;border-radius:99px;background:linear-gradient(90deg,var(--pos) 0 25%,var(--c3) 25% 50%,var(--neg) 50% 100%);position:relative;margin:12px 0 4px;opacity:.9}
+.verdict .meter i{position:absolute;top:-5px;width:4px;height:20px;border-radius:2px;background:var(--ink);transform:translateX(-2px)}
+.verdict .scale{display:flex;justify-content:space-between;font-size:11px;color:var(--soft)}
+.stats{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0 2px}
+.stat{background:var(--panel);border:1px solid var(--line);border-radius:9px;padding:6px 10px;font-size:12px;color:var(--soft)}
+.stat b{display:block;font:700 18px Archivo;color:var(--ink);font-variant-numeric:tabular-nums}
+.find{display:grid;grid-template-columns:28px minmax(0,1fr) 110px;gap:10px;align-items:center;padding:8px 0;border-bottom:1px solid var(--line)}
+.find .rk{font:900 18px Fraunces,serif;color:var(--soft);text-align:center}
+.find .nm{font:600 14px Archivo}
+.find .dots{font-size:11.5px;color:var(--soft);margin-top:2px}
+.find .barw{height:9px;background:var(--nil);border-radius:99px;overflow:hidden}
+.find .barw i{display:block;height:100%;background:var(--leaf);border-radius:99px}
+.find .pc{font:700 11.5px Archivo;color:var(--soft);text-align:right;margin-top:3px;font-variant-numeric:tabular-nums}
+.mapcheck{font-size:12.5px;margin:6px 0 0;color:var(--soft)}.mapcheck b{color:var(--leaf-ink)}.mapcheck.miss{color:var(--clay)}
+.lens{border:2px dashed var(--c3);border-radius:12px;padding:12px 15px;margin:14px 0 6px}
+.lens h4{margin:0 0 4px;font:700 14px Archivo;color:var(--c3)}
+.lens ul{margin:4px 0 0;padding-left:18px;font-size:13.5px}.lens li{margin:3px 0}
+.mapout{margin:8px 0 2px;padding:10px;border:1px solid var(--line);border-radius:10px;background:#fff;overflow:auto;text-align:center}
+.mapout svg{max-width:100%;height:auto}
+.mapmsg{font-size:12.5px;color:var(--soft);margin:2px 0 8px}
+.bar{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin:22px 0 6px}
+.pdf{background:var(--clay);color:#fff;border:0;border-radius:10px;padding:13px 24px;font:700 15px Archivo;cursor:pointer}
+.ghost{background:transparent;border:1px solid var(--line);color:var(--soft);border-radius:10px;padding:12px 16px;font:600 13px Archivo;cursor:pointer}
+.saved{font-size:12px;color:var(--soft)}.hint{font-size:12.5px;color:var(--clay);margin:4px 0 0}
+.printonly{display:none}.printmirror{display:none}
+@media (max-width:520px){.gr{grid-template-columns:minmax(0,1fr) repeat(3,32px) 18px;gap:5px}.gr .tn input{font-size:13px;padding:4px 2px}.find{grid-template-columns:22px minmax(0,1fr) 70px}.weights{grid-template-columns:auto 1fr 40px}}
+@media print{
+  header .themebtn,.tools2,.copybtn,pre.prompt,.step .lead,.bar,.how,.chip2,.mapmsg,.case details,.gr .del,#addRow,.legend{display:none!important}
+  body{background:#fff;color:#000;padding:0}.step{border:1px solid #bbb;border-left:5px solid #666;break-inside:avoid;box-shadow:none}
+  textarea,input.txt,select{border-color:#bbb;background:#fff;color:#000}
+  .src textarea,#w_airesult{display:none!important}
+  .printmirror{display:block;white-space:pre-wrap;word-break:break-word;font:11px/1.5 Archivo;border:1px solid #bbb;border-radius:8px;padding:10px;background:#fff;margin:2px 0 8px;max-height:none}
+  .printmirror:empty{display:none}.mapout{display:block!important;border:1px solid #bbb}
+  .cell,.badge,.find .barw i,.verdict .meter{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .printonly{display:block;margin-bottom:10px;border-bottom:2px solid #2f6b4f;padding-bottom:6px}
+}
+</style></head>
+<body><div class="wrap">
+<header>
+  <div><p class="brandline">Estudios de Mercado I · Tema 3 · Triangulation (3.7)</p>
+  <h1>Triangulation studio</h1></div>
+  <button class="themebtn" id="theme">◐ Theme</button>
+</header>
+<div class="printonly"><div style="font:700 11px Archivo;letter-spacing:.1em;text-transform:uppercase;color:#2f6b4f">Estudios de Mercado I · Tema 3 — Triangulation worksheet</div></div>
+
+<p class="sub"><b>What you do:</b> bring together what your <b>netnography</b>, <b>focus groups</b> and <b>in-depth interviews</b> found, and see where they point the same way. The two methods where <b>you asked the questions</b> carry the weight; the netnography — unprompted, but posted by a self-selected, loud minority — is <b>discounted for its bias</b>. And if the online talk tells a <b>very different story</b>, it is <b>reported as a separate lens</b>, not blended into the findings.</p>
+
+<div class="case" id="topic">
+  <b>The question — <span id="topicShow">the student night out</span>.</b> Client: <span id="clientShow">a new events / nightlife app that wants to win the student segment</span>.
+  <span class="q">Research question:</span> <span id="rqShow">how do students decide where to go out — music, venue, people, budget — and what makes a night feel “worth it”?</span>
+  <details><summary>▸ Change the question (it must be the one all three studies addressed)</summary>
+    <label class="fl" for="w_topic" style="margin-top:8px">Topic</label><input class="txt" id="w_topic">
+    <label class="fl" for="w_client">Client</label><input class="txt" id="w_client">
+    <label class="fl" for="w_rq">Research question</label><input class="txt" id="w_rq">
+  </details>
+</div>
+
+<div class="who">
+  <label>Name / group <input id="w_name" placeholder="Group 2 — A. García"></label>
+  <label>Date <input id="w_date" placeholder="dd/mm/yyyy"></label>
+</div>
+
+<div class="step" style="--c:var(--c1)">
+  <h2><span class="n">1</span> Bring the three analyses in</h2>
+  <p class="lead">Each study arrives as <b>its map plus its evidence</b>. The map is the backbone — it shows each study's themes at a glance, so the three can be laid side by side. Two of the three studies is the minimum; all three is the exercise.</p>
+  <div class="how" style="background:var(--panel)">
+    <b>What to paste in each card — in this order:</b>
+    <ol>
+      <li><b>The map code</b> — the <code>```mermaid</code> mindmap block from that studio's AI answer. <b>This is the key part:</b> the card shows the themes it finds in it.</li>
+      <li><b>The themes with their quotes</b> — the AI's themes, each with its two real quotes.</li>
+      <li><b>Your read</b> — which themes held up and which you cut, plus the bias you noted (the thread's, the group's, or the interviewer's).</li>
+    </ol>
+    <b>How:</b> open the studio in the same browser you used (your work is saved there), click the green <b>“AI answer pasted”</b> line to open the box, select all (Ctrl/Cmd+A), copy and paste here — that brings the map and the themes together. Then copy your read and bias boxes below it.
+  </div>
+
+  <div class="src" style="--sc:var(--c3)">
+    <div class="sh"><b>N · Netnography</b><a href="https://cmoreno34.github.io/netnography-studio/" target="_blank" rel="noopener">open the netnography studio ↗</a></div>
+    <input class="txt" id="d_n" placeholder="What it covered — e.g. YouTube video on student nightlife, 60 top comments">
+    <textarea id="s_n" class="capped" style="height:110px;max-height:240px" placeholder="① the ```mermaid map  ② the themes with quotes  ③ your read + the bias of the thread"></textarea>
+    <div class="chip2" id="c_n" style="display:none"><span>✓ netnography analysis — <b class="nl"></b> lines</span><span class="edit">click to view / edit</span></div>
+    <div class="mapcheck" id="m_n"></div>
+    <pre class="printmirror" id="p_n"></pre>
+    <label class="fl" for="w_rel" style="margin-top:8px">How close is the netnography to the research question?</label>
+    <select id="w_rel">
+      <option value="same">Same topic — the comments are about exactly this question</option>
+      <option value="related">Related — an adjacent topic or a broader community</option>
+      <option value="different">Different — another topic, population or country</option>
+    </select>
+  </div>
+
+  <div class="src" style="--sc:var(--c1)">
+    <div class="sh"><b>F · Focus groups</b><a href="https://cmoreno34.github.io/focus-group-studio/" target="_blank" rel="noopener">open the focus group studio ↗</a></div>
+    <input class="txt" id="d_f" placeholder="What it covered — e.g. 2 groups, 11 students, 18 min each">
+    <textarea id="s_f" class="capped" style="height:110px;max-height:240px" placeholder="① the ```mermaid map  ② the themes with quotes  ③ your read + the group bias"></textarea>
+    <div class="chip2" id="c_f" style="display:none"><span>✓ focus-group analysis — <b class="nl"></b> lines</span><span class="edit">click to view / edit</span></div>
+    <div class="mapcheck" id="m_f"></div>
+    <pre class="printmirror" id="p_f"></pre>
+  </div>
+
+  <div class="src" style="--sc:var(--c4)">
+    <div class="sh"><b>I · In-depth interviews</b><a href="https://cmoreno34.github.io/interview-studio/" target="_blank" rel="noopener">open the interview studio ↗</a></div>
+    <input class="txt" id="d_i" placeholder="What it covered — e.g. 4 interviews, purposive: weekly / rarely / new in town">
+    <textarea id="s_i" class="capped" style="height:110px;max-height:240px" placeholder="① the ```mermaid thematic map (and the ladder map)  ② the themes with quotes and ladders  ③ your read + the interviewer effect"></textarea>
+    <div class="chip2" id="c_i" style="display:none"><span>✓ interview analysis — <b class="nl"></b> lines</span><span class="edit">click to view / edit</span></div>
+    <div class="mapcheck" id="m_i"></div>
+    <pre class="printmirror" id="p_i"></pre>
+  </div>
+</div>
+
+<div class="step" style="--c:var(--c3)">
+  <h2><span class="n">2</span> Assume the bias of the netnography</h2>
+  <p class="lead">Online comments are real and unprompted — but they are not your sample. Tick the biases that apply to <b>your</b> thread; each one lowers the weight the netnography gets when themes are scored. You can still move the sliders yourself.</p>
+  <div class="biases" id="biases"></div>
+  <div class="weights">
+    <span><span class="sw" style="background:var(--c3)"></span>Netnography</span><input type="range" id="wN" min="0" max="1" step="0.05"><span class="wv" id="wNv"></span>
+    <span><span class="sw" style="background:var(--c1)"></span>Focus groups</span><input type="range" id="wF" min="0" max="1" step="0.05"><span class="wv" id="wFv"></span>
+    <span><span class="sw" style="background:var(--c4)"></span>Interviews</span><input type="range" id="wI" min="0" max="1" step="0.05"><span class="wv" id="wIv"></span>
+  </div>
+  <p class="hint" style="color:var(--soft)" id="wNote"></p>
+</div>
+
+<div class="step" style="--c:var(--c2)">
+  <h2><span class="n">3</span> Triangulate — the AI builds the convergence grid</h2>
+  <p class="lead">The prompt carries the three analyses, the biases you ticked and the weights. It asks for one shared list of themes and a <b>grid</b>: for each theme, does each method support it, hint at it, stay silent or contradict it?</p>
+  <div class="how">
+    <b>The method — triangulation (3.7, credibility):</b>
+    <ol>
+      <li><b>Harmonise</b> — the same idea often has a different name in each study; merge those into one theme.</li>
+      <li><b>Grid</b> — mark each theme against each method: <b>+</b> supports · <b>~</b> hints · <b>0</b> silent · <b>x</b> contradicts.</li>
+      <li><b>Weigh</b> — two primary methods agreeing is strong; the netnography adds discounted corroboration.</li>
+      <li><b>Test the netnography</b> — if most of what it says is not confirmed by what you heard in person, it <b>diverges</b>: report it separately as an online lens, and explain why.</li>
+      <li><b>Decide</b> — and name what a survey must now measure.</li>
+    </ol>
+  </div>
+  <div class="tools2">
+    <a class="t2 main" href="https://claude.ai/new" target="_blank" rel="noopener">Claude<span>follows the grid format reliably</span></a>
+    <a class="t2" href="https://chatgpt.com/" target="_blank" rel="noopener">ChatGPT<span>chatgpt.com</span></a>
+    <a class="t2" href="https://gemini.google.com/app" target="_blank" rel="noopener">Gemini<span>gemini.google.com</span></a>
+  </div>
+  <div class="how" style="background:var(--panel)">
+    <b>The grid and the map are the point — get them back as code:</b>
+    <ol>
+      <li>Paste the prompt into a <b>new chat</b>. The answer must <b>start with a <code>```grid</code> block and a <code>```mermaid</code> block</b>.</li>
+      <li>Copy the answer with the chat's own <b>Copy</b> button under the reply — it keeps the code blocks intact. Selecting the text with the mouse can lose them.</li>
+      <li>Missing? Reply: <b>“You did not include the grid and the map. Output them now as a ```grid block (Theme | N | F | I) and a ```mermaid mindmap block, as plain text.”</b></li>
+      <li>It showed a table or a picture instead? Reply: <b>“Don't format or draw it. Give me the plain-text ```grid and ```mermaid code blocks.”</b></li>
+    </ol>
+  </div>
+  <button class="copybtn" id="copyprompt">copy the triangulation prompt (with the three analyses)</button>
+  <pre class="prompt" id="prompt"></pre>
+  <label class="fl" for="w_airesult">Paste the AI's full answer back here — including the <code>```grid</code> block</label>
+  <textarea id="w_airesult" class="capped" style="height:150px;max-height:260px" placeholder="Paste everything the AI returned, including the ```grid ... ``` block. Then press ‘Load the grid’. It collapses once you click away."></textarea>
+  <div class="chip2" id="aiChip" style="display:none"><span>✓ AI answer pasted — grid loaded below</span><span class="edit">click to view / edit</span></div>
+  <pre class="printmirror" id="aiPrint"></pre>
+  <div class="row"><button class="copybtn" id="loadGrid" style="margin:0">▦ Load the grid + draw the map</button><span class="mapmsg" id="gridmsg" style="margin:0"></span></div>
+  <div id="aimapWrap" style="display:none"><label class="fl" style="margin-top:10px">The final integrated map — from the AI</label><div class="mapout" id="aimap"></div></div>
+</div>
+
+<div class="step" style="--c:var(--leaf)">
+  <h2><span class="n">4</span> Check the grid, read the verdict</h2>
+  <p class="lead">The grid is yours: click a cell to change it (+ → ~ → 0 → x), rename or add themes. Everything below recalculates — the divergence of the netnography, the ranking of the findings and the map.</p>
+  <div class="grid" id="grid"></div>
+  <div class="row"><button class="copybtn" id="addRow" style="margin:0">+ Add a theme</button></div>
+  <p class="legend">Click to cycle:<span class="cell" data-v="+">+</span>supports<span class="cell" data-v="~">~</span>hints<span class="cell" data-v="0">0</span>silent<span class="cell" data-v="x">x</span>contradicts</p>
+
+  <div id="verdict"></div>
+  <label class="fl" for="w_mode">How to report the netnography</label>
+  <select id="w_mode">
+    <option value="auto">Follow the verdict (recommended)</option>
+    <option value="integrate">Integrate it, discounted by its weight</option>
+    <option value="separate">Report it as a separate lens</option>
+  </select>
+  <div id="findings"></div>
+  <label class="fl" style="margin-top:14px">Integrated map from your grid — it follows every change you make</label>
+  <p class="mapmsg" id="mapmsg"></p>
+  <div class="mapout" id="mapout" style="display:none"></div>
+</div>
+
+<div class="step" style="--c:var(--clay)">
+  <h2><span class="n">5</span> The integrated insight, then the decision <b>for the client</b></h2>
+  <p class="lead">Say what the evidence supports when the methods are read together, how you treated the online voice and why — then what the <b>client should DO</b>, and what a survey must now size.</p>
+  <label class="fl" for="w_integ">The integrated insight — what the methods agree on</label>
+  <textarea id="w_integ" placeholder="e.g. Both the groups and the interviews say a night is ‘worth it’ when the whole group goes together; the ladders end in belonging. The comments echo it, but louder about price than anyone was in person."></textarea>
+  <label class="fl" for="w_netno">How you treated the netnography — and why</label>
+  <textarea id="w_netno" placeholder="e.g. Weighted at 0.4: top comments, unknown age and country, a video that framed nightlife as ‘too expensive’. Its two online-only themes (influencer venues, door policy) are kept as hypotheses, not findings."></textarea>
+  <label class="fl" for="w_dec">The decision FOR THE CLIENT + what the survey must measure</label>
+  <textarea id="w_dec" style="min-height:96px" placeholder="Decision (an action): e.g. “Build the app around group plans — one invite, one price, everyone in.” Then: “The survey must measure how many students go out in groups of 4+, how price-sensitive they are, and whether the online complaint about door policy is common.”"></textarea>
+</div>
+
+<div class="bar">
+  <button class="pdf" id="pdf">⬇ Download PDF</button>
+  <button class="ghost" id="clear">Clear worksheet</button>
+  <span class="saved" id="saved">Saved in this browser</span>
+</div>
+<p class="hint">Triangulation makes qualitative findings more <b>credible</b>, not more <b>representative</b>: three methods agreeing still don't tell you how common something is. That is what the survey is for.</p>
+</div>
+
+<script>
+const $=s=>document.querySelector(s);
+const KEY='mkt3600_tri';
+const DEF={w_topic:'the student night out',w_client:'a new events / nightlife app that wants to win the student segment',
+  w_rq:'how do students decide where to go out — music, venue, people, budget — and what makes a night feel “worth it”?'};
+const SRC={n:'netnography',f:'focus groups',i:'interviews'};
+const BIASES=[
+  ['self','Self-selection','people who post are not the people who buy — the quiet majority is invisible',true],
+  ['extreme','Extremes','fans and the furious are over-represented; the lukewarm middle rarely writes',true],
+  ['order','Ordering','“Top comments” / the algorithm chose what you read, not a systematic sample',true],
+  ['perform','Performance','comments are written for an audience (likes, jokes), not said in confidence',true],
+  ['who','Unknown who','age, country and segment are unknown — maybe not our target at all',true],
+  ['frame','The video set the agenda','people react to what the video says, not to your research question',false],
+  ['noise','Noise','spam, bots, off-topic replies or the creator\'s own fans',false]];
+const V=['+','~','0','x'], VAL={'+':1,'~':.5,'0':0,'x':-1};
+function val(id){const e=$('#'+id);return e?e.value.trim():'';}
+function autogrow(t){t.style.height='auto';t.style.height=(t.scrollHeight+2)+'px';}
+function esc(s){return String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
+function lines(s){return s?s.split('\n').filter(x=>x.trim()).length:0;}
+function topic(){return val('w_topic')||DEF.w_topic;}
+function client(){return val('w_client')||DEF.w_client;}
+function rq(){return val('w_rq')||DEF.w_rq;}
+function refreshTopic(){$('#topicShow').textContent=topic();$('#clientShow').textContent=client();$('#rqShow').textContent=rq();}
+
+/* ---- state ---- */
+let rows=[], checks={}, weights={n:.45,f:1,i:1}, wTouched=false;
+BIASES.forEach(b=>checks[b[0]]=b[3]);
+
+/* ---- biases + weights ---- */
+function suggestedWN(){const k=BIASES.filter(b=>checks[b[0]]).length+(val('w_rel')==='different'?2:val('w_rel')==='related'?1:0);
+  return Math.max(.2,Math.round((.85-.08*k)*20)/20);}
+function renderBiases(){
+  $('#biases').innerHTML=BIASES.map(b=>`<label><input type="checkbox" data-k="${b[0]}" ${checks[b[0]]?'checked':''}><span><b>${b[1]}</b> — ${b[2]}</span></label>`).join('');
+  document.querySelectorAll('#biases input').forEach(cb=>cb.onchange=()=>{checks[cb.dataset.k]=cb.checked;wTouched=false;weights.n=suggestedWN();syncWeights();changed();});
+}
+function syncWeights(){['n','f','i'].forEach(k=>{const K=k.toUpperCase();$('#w'+K).value=weights[k];$('#w'+K+'v').textContent=(+weights[k]).toFixed(2);});
+  const s=suggestedWN();
+  $('#wNote').textContent=`Suggested netnography weight from your ticks: ${s.toFixed(2)} (the primary methods count 1). `+
+    (wTouched&&Math.abs(weights.n-s)>.001?'You set it by hand — say why in step 5.':'A ticked bias costs about 0.08; an off-topic thread costs more.');}
+['n','f','i'].forEach(k=>{const el=$('#w'+k.toUpperCase());el.oninput=()=>{weights[k]=+el.value;if(k==='n')wTouched=true;syncWeights();changed();};});
+
+/* ---- sources ---- */
+function has(k){return !!val('s_'+k)||rows.some(r=>r[k]!=='0');}
+function srcBlock(k,title){const t=val('s_'+k);const d=val('d_'+k);
+  return `=== ${title} ===${d?'\nWhat it covered: '+d:''}\n"""\n${t||'[NOT PROVIDED — mark this source 0 in the grid]'}\n"""`;}
+const REL={same:'the same topic as the research question',related:'a RELATED but not identical topic — weigh its fit carefully',different:'a DIFFERENT topic or population — treat it as context at most'};
+
+function buildPrompt(){
+  const ticked=BIASES.filter(b=>checks[b[0]]).map(b=>`${b[1].toLowerCase()} (${b[2]})`);
+  return `Act as a senior qualitative research analyst doing METHOD TRIANGULATION.
+Research question: ${rq()}
+Topic: ${topic()}. Client: ${client()}.
+
+You have the analyses of three qualitative studies on this question:
+- N = NETNOGRAPHY — public online comments: unprompted, but posted by a self-selected minority.
+- F = FOCUS GROUPS — primary data, a moderated group discussion.
+- I = IN-DEPTH INTERVIEWS — primary data, one-to-one, with laddering.
+
+Each analysis includes its thematic MAP — a Mermaid mindmap: root > themes > categories > sample quotes. Use the three maps as the BACKBONE: line their themes up side by side, merge the ones that are the same idea, then check every theme against the quotes and notes that follow each map.
+
+Treat the two PRIMARY sources (F and I) as the base of the evidence. Treat the NETNOGRAPHY as weaker, biased evidence: weight ${weights.n.toFixed(2)} for N, against ${(+weights.f).toFixed(2)} for F and ${(+weights.i).toFixed(2)} for I, because of: ${ticked.length?ticked.join('; '):'no biases ticked'}. The netnography covers ${REL[val('w_rel')||'same']}.
+
+${srcBlock('n','N — NETNOGRAPHY ANALYSIS')}
+
+${srcBlock('f','F — FOCUS GROUP ANALYSIS')}
+
+${srcBlock('i','I — INTERVIEW ANALYSIS')}
+
+HOW YOUR ANSWER WILL BE USED — READ THIS FIRST. I will copy your whole answer and paste it into a web tool that reads the GRID and DRAWS the MAP from your code. These two blocks are THE MOST IMPORTANT PART of the answer; an answer without them is useless to me and will be rejected. So:
+- BEGIN your reply with the two code blocks A and B below — before any heading, introduction or other text.
+- Each goes in its OWN fenced code block: a line with \`\`\`grid (or \`\`\`mermaid), then the content, then a line with \`\`\` alone.
+- Write them as PLAIN TEXT. Do NOT render, preview or draw the diagram; do NOT generate an image; do NOT use canvas, artifacts or any other tool; do NOT turn the grid into a formatted table; do NOT describe them in words instead; do NOT ask whether I want them.
+- Plain words only in theme names and map nodes — NO quotation marks, apostrophes, parentheses, brackets, braces, colons, semicolons, ampersands, hashes, pipes inside names, or emojis. Theme names at most 6 words.
+
+A) CONVERGENCE GRID — one line per final theme (4-10 themes, after merging the themes that are the same idea under different names), in exactly this format, with NO header line and nothing else inside the block:
+   Theme name | N | F | I
+   where each mark is one of:  +  supports   ~  partial or hinted   0  silent (not mentioned)   x  contradicts
+   Mark a source 0 if it was not provided. Judge only from the evidence in the analyses, not from what sounds plausible.
+   Exact format:
+\`\`\`grid
+Going out as a group | + | + | +
+Free entry before 1 am | 0 | + | ~
+Influencer-led venues | + | 0 | x
+\`\`\`
+B) FINAL INTEGRATED MAP — ONE Mermaid "mindmap" that brings the three studies together, using the SAME themes as the grid. First line: mindmap. Second line: the root, written as  root((Topic)). Then up to four branches named exactly Converged, Primary only, Contested, Online only — leave out a branch that has no themes; inside each branch put the strongest theme first. Under each theme: one node naming the methods that support it (N F I), and one node with a short real quote (at most 8 words) from the strongest source. One node per line, nested ONLY by indentation (2 spaces per level). Exact format:
+\`\`\`mermaid
+mindmap
+  root((Night out))
+    Converged
+      Going out as a group
+        N F I
+        If my friends stay home so do I
+    Primary only
+      Free entry before 1 am
+        F I
+        Free before 1 is why we go
+    Online only
+      Door policy
+        N
+        They let in who they like
+\`\`\`
+
+AFTER the two blocks, do the analysis — ALL 5 steps, in order:
+1) HARMONISE: list the themes of each analysis and say which you merged into one and why.
+2) EVIDENCE: for each final theme, one short supporting quote or finding from each source that supports it, labelled [N], [F] or [I]. Never invent quotes.
+3) THE NETNOGRAPHY TEST: does the online talk tell broadly the same story as the primary data? List the themes that appear ONLY online, and those where the online talk CONTRADICTS what was said in the groups or interviews. If more than about half of what the netnography says is not confirmed by the primary data, say clearly that it DIVERGES and must be reported as a SEPARATE LENS, not blended into the findings. Give the most likely reason (a different population, the medium's bias, the video framing the conversation).
+4) INTEGRATED FINDINGS: 3-5 findings ranked by strength of evidence — two primary methods agreeing beats one; the netnography adds only discounted corroboration. Label each: Robust (2-3 methods), Primary only, Contested, or Online-only hypothesis.
+5) End with the single DECISION the client should take (a concrete marketing action), and the 2-3 things a representative SURVEY must now measure to size these findings.
+Use ONLY the analyses provided — do not invent quotes, data or themes.
+
+FINAL CHECK before you send: does your reply BEGIN with the \`\`\`grid block (one line per theme: Theme | N | F | I) followed by the \`\`\`mermaid mindmap block, both as plain text? If not, fix it before answering.`;
+}
+function refreshPrompt(){$('#prompt').textContent=buildPrompt();}
+
+/* ---- grid parsing ---- */
+function sym(s){s=s.replace(/\*\*|`/g,'').trim().toLowerCase();
+  if(/^(\+|✓|✔|y|yes|supports?)$/.test(s))return '+';
+  if(/^(~|≈|partial|partly|hint(ed|s)?)$/.test(s))return '~';
+  if(/^(0|-|–|—|silent|none|n\/a|)$/.test(s))return '0';
+  if(/^(x|✗|✘|×|contradicts?)$/.test(s))return 'x';
+  return null;}
+function parseGrid(t){t=t.replace(/\r/g,'');
+  const bl=[...t.matchAll(/(^|\n)[ \t]*```[ \t]*grid[ \t]*\n([\s\S]*?)\n[ \t]*```/gi)];
+  const src=bl.length?bl[bl.length-1][2]:t;const out=[];
+  for(const ln of src.split('\n')){if(!ln.includes('|'))continue;
+    const c=ln.split('|').map(s=>s.trim());if(c[0]==='')c.shift();if(c.length&&c[c.length-1]==='')c.pop();
+    if(c.length<4)continue;const m=c.slice(-3).map(sym);if(m.some(x=>x===null))continue;
+    const name=c.slice(0,c.length-3).join(' ').replace(/\*\*/g,'').replace(/^\d+[.)]\s*/,'').trim();
+    if(!name||/^(theme|tema)( name)?$/i.test(name))continue;
+    out.push({t:name,n:m[0],f:m[1],i:m[2]});}
+  return out;}
+/* ---- the maps pasted from each studio ---- */
+function mindmaps(t){t=t.replace(/\r/g,'');
+  const bl=[...t.matchAll(/(^|\n)[ \t]*```[ \t]*mermaid[ \t]*\n([\s\S]*?)\n[ \t]*```/gi)].map(x=>x[2].trim()).filter(c=>/^mindmap\b/i.test(c));
+  if(bl.length)return bl;
+  const out=[],L=t.split('\n');            // copied without fences: take the indented lines under a bare "mindmap"
+  for(let k=0;k<L.length;k++){if(!/^[ \t]*mindmap[ \t]*$/i.test(L[k]))continue;const b=['mindmap'];let j=k+1;
+    for(;j<L.length;j++){const x=L[j];if(!x.trim())continue;if(/^\S/.test(x)||/^[ \t]*```/.test(x))break;b.push(x.replace(/\s+$/,''));}
+    if(b.length>2)out.push(b.join('\n'));k=j-1;}
+  return out;}
+function mapThemes(code){const L=code.split('\n').slice(1).filter(x=>x.trim());if(!L.length)return [];
+  const ind=x=>x.match(/^\s*/)[0].replace(/\t/g,'  ').length;const r=ind(L[0]);
+  const kids=L.slice(1).filter(x=>ind(x)>r);if(!kids.length)return [];
+  const lvl=Math.min(...kids.map(ind));
+  return kids.filter(x=>ind(x)===lvl).map(x=>x.trim().replace(/::icon\(.*\)/,'').replace(/^[\w-]*[(\[{]+\s*/,'').replace(/[)\]}]+$/,'').trim()).filter(Boolean);}
+function refreshMapChecks(){['n','f','i'].forEach(k=>{const el=$('#m_'+k),t=val('s_'+k);
+  if(!t){el.className='mapcheck';el.textContent='';return;}
+  const mm=mindmaps(t)[0],th=mm?mapThemes(mm):[];
+  if(th.length){el.className='mapcheck';el.innerHTML=`✓ map found — <b>${th.length} theme${th.length>1?'s':''}</b>: ${th.map(esc).join(' · ')}`;}
+  else{el.className='mapcheck miss';el.textContent='⚠ No map found in this paste — add the ```mermaid mindmap block from the studio\'s AI answer. It is the backbone of the comparison.';}});}
+
+$('#loadGrid').onclick=async()=>{const t=val('w_airesult');const g=parseGrid(t);const msg=$('#gridmsg');
+  const mm=mindmaps(t).pop();let note='';
+  if(mm){try{const {svg}=await mermaid.render('aimap_'+Date.now(),mm);$('#aimap').innerHTML=svg;$('#aimapWrap').style.display='';}
+    catch(e){$('#aimapWrap').style.display='none';note=' The map code has an error — ask the AI to “return the map again as a valid Mermaid mindmap”.';}}
+  else{$('#aimapWrap').style.display='none';note=' No map found — ask the AI for the ```mermaid mindmap block.';}
+  if(!g.length){msg.textContent='No grid found — ask the AI for the ```grid block (see the replies above), paste it and try again.'+note;return;}
+  if(rows.length&&JSON.stringify(rows)!==JSON.stringify(g)&&!confirm(`Replace your current grid (${rows.length} themes) with the ${g.length} themes from the AI?`)){msg.textContent=note.trim();return;}
+  rows=g;msg.textContent=`✓ ${g.length} themes loaded — check every cell against the evidence.`+note;renderGrid();changed();};
+
+/* ---- the grid ---- */
+function primPos(r){const p=x=>x==='+'||x==='~';return (has('f')&&p(r.f))||(has('i')&&p(r.i));}
+function cls(r){const p=x=>x==='+'||x==='~';
+  const pPos=(has('f')&&p(r.f))||(has('i')&&p(r.i)), pNeg=(has('f')&&r.f==='x')||(has('i')&&r.i==='x');
+  const nOn=has('n'), nPos=nOn&&p(r.n), nNeg=nOn&&r.n==='x';
+  if((nPos&&pNeg)||(nNeg&&pPos))return 'contN';
+  if(pPos&&pNeg)return 'cont';
+  if(nPos&&pPos)return 'conv';
+  if(pPos)return 'prim';
+  if(nPos)return 'net';
+  return 'thin';}
+const CL={conv:['Converged','b-conv'],prim:['Primary only','b-prim'],net:['Online only','b-net'],contN:['Contested','b-cont'],cont:['Contested','b-cont'],thin:['No support','b-thin']};
+function renderGrid(){
+  const g=$('#grid');
+  let h=`<div class="gr head"><span>Theme</span><span title="Netnography">N</span><span title="Focus groups">F</span><span title="Interviews">I</span><span></span></div>`;
+  rows.forEach((r,k)=>{const c=CL[cls(r)];
+    h+=`<div class="gr" data-k="${k}"><div class="tn"><input value="${esc(r.t)}" title="${esc(r.t)}" aria-label="Theme name"><span><span class="badge ${c[1]}">${c[0]}</span></span></div>`+
+      ['n','f','i'].map(s=>`<button class="cell${has(s)?'':' off'}" data-s="${s}" data-v="${r[s]}" title="${SRC[s]}">${r[s]}</button>`).join('')+
+      `<button class="del" title="Remove theme">✕</button></div>`;});
+  if(!rows.length)h+=`<p class="mapmsg" style="margin:10px 0">No themes yet — load them from the AI's answer (step 3) or add them by hand.</p>`;
+  g.innerHTML=h;
+  g.querySelectorAll('.gr[data-k]').forEach(el=>{const k=+el.dataset.k;
+    el.querySelector('.tn input').oninput=e=>{rows[k].t=e.target.value;changed(true);};
+    el.querySelector('.tn input').onchange=()=>renderGrid();
+    el.querySelectorAll('.cell').forEach(b=>b.onclick=()=>{const s=b.dataset.s;rows[k][s]=V[(V.indexOf(rows[k][s])+1)%4];renderGrid();changed();});
+    el.querySelector('.del').onclick=()=>{rows.splice(k,1);renderGrid();changed();};});
+}
+$('#addRow').onclick=()=>{rows.push({t:'New theme',n:'0',f:'0',i:'0'});renderGrid();changed();
+  const ins=document.querySelectorAll('#grid .tn input');const last=ins[ins.length-1];if(last){last.focus();last.select();}};
+
+/* ---- verdict + findings ---- */
+function analyse(){
+  const vEl=$('#verdict'),fEl=$('#findings');
+  if(!rows.length){vEl.innerHTML='';fEl.innerHTML='';drawMap(null);return;}
+  const C={conv:0,prim:0,net:0,contN:0,cont:0,thin:0};rows.forEach(r=>C[cls(r)]++);
+  const nTouch=C.conv+C.net+C.contN, D=nTouch?(C.net+C.contN)/nTouch:null;
+  const primT=C.conv+C.prim+C.contN+C.cont, cover=primT?C.conv/primT:null;
+  const rel=val('w_rel')||'same', nOn=has('n');
+  let rec,why;
+  if(!nOn){rec='none';why='No netnography provided — the findings rest on the primary methods only.';}
+  else if(rel==='different'){rec='separate';why='You marked the netnography as a different topic or population — it cannot corroborate these findings. Report it as a separate lens.';}
+  else if(D===null){rec='separate';why='The netnography touches none of these themes — it adds nothing to corroborate. Report it apart, as context.';}
+  else if(D>=.5){rec='separate';why=`${Math.round(D*100)}% of what the netnography says is not confirmed — or is contradicted — by the groups and interviews. It tells a different story: report it as a separate online lens and explain why it diverges.`;}
+  else if(D>=.25){rec='caution';why=`${Math.round(D*100)}% of the online themes are not confirmed in person. Integrate it at its discounted weight, but flag the online-only themes as hypotheses, not findings.`;}
+  else{rec='integrate';why=`Only ${Math.round(D*100)}% of the online themes lack support in person — the netnography broadly corroborates the primary data. Integrate it at its discounted weight.`;}
+  const mode=val('w_mode')||'auto';
+  const sep=nOn&&(mode==='separate'||(mode==='auto'&&rec==='separate'));
+  const title={none:'Primary methods only',separate:'Diverges — report the netnography separately',caution:'Partly divergent — integrate with caution',integrate:'Converges — integrate it, discounted'}[rec];
+  vEl.innerHTML=`<div class="verdict${rec==='separate'?' sep':''}"><h3>${title}</h3><div style="font-size:13.5px">${why}</div>`+
+    (D!==null&&nOn?`<div class="meter"><i style="left:${Math.min(100,Math.max(0,D*100))}%"></i></div><div class="scale"><span>0% · integrate</span><span>25%</span><span>50% · separate</span><span>100%</span></div>`:'')+
+    `<div class="stats"><div class="stat"><b>${D===null||!nOn?'—':Math.round(D*100)+'%'}</b>netnography divergence</div><div class="stat"><b>${cover===null||!nOn?'—':Math.round(cover*100)+'%'}</b>primary themes echoed online</div>`+
+    `<div class="stat"><b>${C.conv}</b>converged</div><div class="stat"><b>${C.prim}</b>primary only</div><div class="stat"><b>${C.net}</b>online only</div><div class="stat"><b>${C.contN+C.cont}</b>contested</div></div>`+
+    (mode!=='auto'&&nOn&&((mode==='separate')!==(rec==='separate'))?`<p class="hint" style="margin-top:8px">You overrode the verdict — justify it in step 5.</p>`:'')+`</div>`;
+  /* strength: weighted mean of the sources present; netnography left out when reported separately */
+  const use=['n','f','i'].filter(s=>has(s)&&!(sep&&s==='n'));
+  const score=r=>{let a=0,w=0;use.forEach(s=>{a+=weights[s]*VAL[r[s]];w+=+weights[s];});return w?a/w:0;};
+  const dots=r=>['n','f','i'].filter(has).map(s=>`${s.toUpperCase()} ${r[s]}`).join(' · ');
+  const main=rows.filter(r=>{const c=cls(r);return c!=='thin'&&!(sep&&(c==='net'||(c==='contN'&&!primPos(r))));})
+    .map(r=>({r,s:score(r),c:cls(r)})).sort((a,b)=>b.s-a.s);
+  let h=`<label class="fl" style="margin-top:14px">${sep?'Findings from the primary methods (netnography reported apart)':'Integrated findings — ranked by weighted strength of evidence'}</label>`;
+  main.forEach((x,k)=>{const c=CL[x.c];const pct=Math.round(Math.max(0,x.s)*100);
+    const robust=has('f')&&has('i')&&x.r.f==='+'&&x.r.i==='+'?' <span class="badge b-conv">F + I agree</span>':'';
+    const hyp=x.c==='net'?' <span class="badge b-net">hypothesis</span>':'';
+    h+=`<div class="find"><div class="rk">${k+1}</div><div><div class="nm">${esc(x.r.t)}<span class="badge ${c[1]}">${c[0]}</span>${robust}${hyp}</div><div class="dots">${dots(x.r)}</div></div><div><div class="barw"><i style="width:${pct}%"></i></div><div class="pc">${x.s<0?'contradicted':pct+'%'}</div></div></div>`;});
+  if(!main.length)h+='<p class="mapmsg">No theme has support yet.</p>';
+  if(sep){const net=rows.filter(r=>cls(r)==='net'),contN=rows.filter(r=>cls(r)==='contN'),echo=rows.filter(r=>cls(r)==='conv');
+    h+=`<div class="lens"><h4>The netnography lens — reported separately (weight ${weights.n.toFixed(2)})</h4>
+      <div style="font-size:13px;color:var(--soft)">What a self-selected online public says. Read it as a different voice, not as more evidence for the findings above.</div><ul>`+
+      (net.length?`<li><b>Only online:</b> ${net.map(r=>esc(r.t)).join(' · ')} — hypotheses to test, not findings.</li>`:'')+
+      (contN.length?`<li><b>Online says the opposite:</b> ${contN.map(r=>esc(r.t)).join(' · ')} — explain why the online public differs.</li>`:'')+
+      (echo.length?`<li><b>Also echoed online:</b> ${echo.map(r=>esc(r.t)).join(' · ')}.</li>`:'')+
+      (!net.length&&!contN.length&&!echo.length?'<li>The netnography touches none of the themes.</li>':'')+`</ul></div>`;}
+  fEl.innerHTML=h;
+  drawMap({sep,main});
+}
+
+/* ---- map, built from the grid (no AI needed) ---- */
+try{mermaid.initialize({startOnLoad:false,securityLevel:'loose',theme:'neutral'});}catch(_){}
+function clean(s){return String(s).replace(/[()\[\]{}:;"'`<>#|\\]/g,' ').replace(/\s+/g,' ').trim().slice(0,60)||'Theme';}
+let mapTimer;
+function drawMap(m){clearTimeout(mapTimer);mapTimer=setTimeout(async()=>{
+  const out=$('#mapout'),msg=$('#mapmsg');
+  if(!m||!rows.length){out.style.display='none';msg.textContent='The map appears once the grid has themes.';return;}
+  const groups=[['Converged',r=>cls(r)==='conv'],['Primary only',r=>cls(r)==='prim'],['Contested',r=>/^cont/.test(cls(r))]];
+  if(m.sep)groups.push(['Online lens apart',r=>cls(r)==='net']);else groups.push(['Online only hypothesis',r=>cls(r)==='net']);
+  let code='mindmap\n  root(('+clean(topic())+'))\n';
+  groups.forEach(([g,f])=>{const rs=rows.filter(f);if(!rs.length)return;code+='    '+g+'\n';rs.forEach(r=>code+='      '+clean(r.t)+'\n');});
+  try{const {svg}=await mermaid.render('tmap_'+Date.now(),code);out.innerHTML=svg;out.style.display='';msg.textContent='';}
+  catch(e){out.style.display='none';msg.textContent='Could not draw the map — check the theme names for unusual characters.';}
+},250);}
+
+/* ---- save / restore ---- */
+const ids=['w_name','w_date','w_topic','w_client','w_rq','d_n','d_f','d_i','s_n','s_f','s_i','w_rel','w_airesult','w_mode','w_integ','w_netno','w_dec'];
+let st;
+function save(){clearTimeout(st);st=setTimeout(()=>{const o={};ids.forEach(i=>o[i]=val(i));o._rows=rows;o._checks=checks;o._w=weights;o._wt=wTouched;
+  try{localStorage.setItem(KEY,JSON.stringify(o));$('#saved').textContent='Saved ✓ '+new Date().toLocaleTimeString();}catch(_){}} ,300);}
+function changed(soft){save();refreshPrompt();refreshMapChecks();if(!soft)analyse();}
+function chipFor(k){const t=$('#s_'+k),c=$('#c_'+k);if(!t.value.trim())return;t.style.display='none';c.style.display='';c.querySelector('.nl').textContent=lines(t.value);}
+(function init(){let s={};try{s=JSON.parse(localStorage.getItem(KEY)||'{}');}catch(_){}
+  if(Array.isArray(s._rows))rows=s._rows.filter(r=>r&&typeof r.t==='string').map(r=>({t:r.t,n:V.includes(r.n)?r.n:'0',f:V.includes(r.f)?r.f:'0',i:V.includes(r.i)?r.i:'0'}));
+  if(s._checks&&typeof s._checks==='object')BIASES.forEach(b=>{if(b[0] in s._checks)checks[b[0]]=!!s._checks[b[0]];});
+  if(s._w&&typeof s._w==='object')['n','f','i'].forEach(k=>{const x=+s._w[k];if(x>=0&&x<=1)weights[k]=x;});
+  wTouched=!!s._wt;
+  ids.forEach(i=>{const el=$('#'+i);if(!el)return;if(s[i])el.value=s[i];else if(DEF[i])el.value=DEF[i];
+    const capped=el.classList.contains('capped');
+    const ev=el.tagName==='SELECT'?'change':'input';
+    el.addEventListener(ev,()=>{if(el.tagName==='TEXTAREA'&&!capped){autogrow(el);}
+      if(i in DEF)refreshTopic();
+      if(i==='w_rel'&&!wTouched){weights.n=suggestedWN();syncWeights();}
+      if(/^s_/.test(i))renderGrid();
+      changed();});
+    if(el.tagName==='TEXTAREA'&&!capped)autogrow(el);});
+  if(!s._w)weights.n=suggestedWN();
+  renderBiases();syncWeights();refreshTopic();renderGrid();refreshPrompt();analyse();refreshMapChecks();
+  {const mm=mindmaps(val('w_airesult')).pop();if(mm)mermaid.render('aimap_init',mm).then(r=>{$('#aimap').innerHTML=r.svg;$('#aimapWrap').style.display='';}).catch(()=>{});}
+  ['n','f','i'].forEach(k=>{chipFor(k);$('#s_'+k).addEventListener('blur',()=>chipFor(k));
+    $('#c_'+k).onclick=()=>{$('#c_'+k).style.display='none';const t=$('#s_'+k);t.style.display='';t.focus();};});
+  if(val('w_airesult'))collapse('w_airesult','aiChip');
+})();
+function collapse(taId,chipId){const t=$('#'+taId);if(!t.value.trim())return;t.style.display='none';$('#'+chipId).style.display='';}
+$('#w_airesult').addEventListener('blur',()=>collapse('w_airesult','aiChip'));
+$('#aiChip').onclick=()=>{$('#w_airesult').style.display='';$('#aiChip').style.display='none';$('#w_airesult').focus();};
+
+/* ---- copy / print / theme ---- */
+function copy(text,btn){const o=btn.textContent;const ok=()=>{btn.textContent='copied ✓';setTimeout(()=>btn.textContent=o,1200);};
+  const fb=()=>{try{const ta=document.createElement('textarea');ta.value=text;ta.style.position='fixed';ta.style.top='-1000px';document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);ok();}catch(_){btn.textContent='Ctrl+C';}};
+  if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(text).then(ok).catch(fb);}else{fb();}}
+$('#copyprompt').onclick=e=>copy(buildPrompt(),e.currentTarget);
+function syncPrintMirrors(){['n','f','i'].forEach(k=>$('#p_'+k).textContent=val('s_'+k));$('#aiPrint').textContent=val('w_airesult');}
+window.addEventListener('beforeprint',syncPrintMirrors);
+$('#pdf').onclick=()=>{if(!val('w_date'))$('#w_date').value=new Date().toLocaleDateString();syncPrintMirrors();window.print();};
+$('#clear').onclick=()=>{if(confirm('Clear the worksheet? Download your PDF first if you need it.')){localStorage.removeItem(KEY);location.reload();}};
+const root=document.documentElement;$('#theme').onclick=()=>{const c=root.getAttribute('data-theme');root.setAttribute('data-theme',c==='dark'?'light':c==='light'?'dark':(matchMedia('(prefers-color-scheme:dark)').matches?'light':'dark'));};
+</script>
+</body></html>
