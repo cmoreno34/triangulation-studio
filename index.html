@@ -170,7 +170,7 @@ pre.prompt{background:#14211b;color:#e8efe6;border-radius:10px;padding:14px;marg
 
   <div class="src" style="--sc:var(--c3)">
     <div class="sh"><b>N · Netnography</b><a href="https://cmoreno34.github.io/netnography-studio/" target="_blank" rel="noopener">open the netnography studio ↗</a></div>
-    <input class="txt" id="d_n" placeholder="What it covered — e.g. YouTube video on student nightlife, 60 top comments">
+    <input class="txt" id="d_n" placeholder="What it covered — e.g. Google reviews of 3 clubs, 80 reviews · or a TikTok video, 60 comments">
     <textarea id="s_n" class="capped" style="height:110px;max-height:240px" placeholder="① the ```mermaid map  ② the themes with quotes  ③ your read + the bias of the thread"></textarea>
     <div class="chip2" id="c_n" style="display:none"><span>✓ netnography analysis — <b class="nl"></b> lines</span><span class="edit">click to view / edit</span></div>
     <div class="mapcheck" id="m_n"></div>
@@ -302,7 +302,7 @@ const BIASES=[
   ['order','Ordering','“Top comments” / the algorithm chose what you read, not a systematic sample',true],
   ['perform','Performance','comments are written for an audience (likes, jokes), not said in confidence',true],
   ['who','Unknown who','age, country and segment are unknown — maybe not our target at all',true],
-  ['frame','The video set the agenda','people react to what the video says, not to your research question',false],
+  ['frame','The post set the agenda','people react to what the video, post or business says, not to your research question',false],
   ['noise','Noise','spam, bots, off-topic replies or the creator\'s own fans',false]];
 const V=['+','~','0','x'], VAL={'+':1,'~':.5,'0':0,'x':-1};
 function val(id){const e=$('#'+id);return e?e.value.trim():'';}
@@ -395,7 +395,7 @@ mindmap
 AFTER the two blocks, do the analysis — ALL 5 steps, in order:
 1) HARMONISE: list the themes of each analysis and say which you merged into one and why.
 2) EVIDENCE: for each final theme, one short supporting quote or finding from each source that supports it, labelled [N], [F] or [I]. Never invent quotes.
-3) THE NETNOGRAPHY TEST: does the online talk tell broadly the same story as the primary data? List the themes that appear ONLY online, and those where the online talk CONTRADICTS what was said in the groups or interviews. If more than about half of what the netnography says is not confirmed by the primary data, say clearly that it DIVERGES and must be reported as a SEPARATE LENS, not blended into the findings. Give the most likely reason (a different population, the medium's bias, the video framing the conversation).
+3) THE NETNOGRAPHY TEST: does the online talk tell broadly the same story as the primary data? List the themes that appear ONLY online, and those where the online talk CONTRADICTS what was said in the groups or interviews. If more than about half of what the netnography says is not confirmed by the primary data, say clearly that it DIVERGES and must be reported as a SEPARATE LENS, not blended into the findings. Give the most likely reason (a different population, the medium's bias, the video or post framing the conversation).
 4) INTEGRATED FINDINGS: 3-5 findings ranked by strength of evidence — two primary methods agreeing beats one; the netnography adds only discounted corroboration. Label each: Robust (2-3 methods), Primary only, Contested, or Online-only hypothesis.
 5) End with the single DECISION the client should take (a concrete marketing action), and the 2-3 things a representative SURVEY must now measure to size these findings.
 Use ONLY the analyses provided — do not invent quotes, data or themes.
